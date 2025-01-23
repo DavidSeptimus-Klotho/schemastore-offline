@@ -1,7 +1,7 @@
 {
-  "name": "offline-schemas",
+  "name": "schemastore-offline",
   "version": "1.0.0",
-  "description": "An offline utility for finding matched JSON schemas for a given file using the the schemastore catalog",
+  "description": "A TS/ESM library for detecting the appropriate JSON Schema for a given file path using the schemastore catalog.",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
