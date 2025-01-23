@@ -1,0 +1,39 @@
+{
+  "name": "offline-schemas",
+  "version": "1.0.0",
+  "description": "An offline utility for finding matched JSON schemas for a given file using the the schemastore catalog",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && rollup -c",
+    "dev": "rollup -c -w",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "update-schemas": "node scripts/downloadCatalog.js",
+    "prebuild": "npm run update-schemas",
+    "package": "npm run build && npm pack"
+  },
+  "author": "David Septimus",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/node": "^22.10.9",
+    "rollup": "^4.31.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.3"
+  },
+  "dependencies": {
+    "@vitest/coverage-v8": "^3.0.3",
+    "minimatch": "^10.0.1"
+  }
+}
