@@ -1,8 +1,8 @@
 import typescript from '@rollup/plugin-typescript';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
 import json from "@rollup/plugin-json";
-import commonjs from "@rollup/plugin-commonjs";
 
+/** @typedef {import('rollup').RollupOptions} */
 export default {
     input: 'src/index.ts',
     output: {
@@ -11,13 +11,11 @@ export default {
         sourcemap: true,
         preserveModules: true
     },
+    external: ['micromatch'],
     plugins: [
         json(),
         nodeResolve({
             extensions: ['.js', '.ts']
-        }),
-        commonjs({
-            include: /node_modules\/brace-expansion/
         }),
         typescript({
             exclude: ["**/__tests__", "**/*.test.ts"],
@@ -27,4 +25,4 @@ export default {
             sourceMap: true
         })
     ],
-};
+} ;

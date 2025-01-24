@@ -1,6 +1,5 @@
-import {minimatch} from 'minimatch'
+import micromatch from 'micromatch';
 import catalog from './catalog.json';
-
 
 export interface Schema {
     name: string;
@@ -49,7 +48,6 @@ export type DetectSchemaOptions =
     | DetectSchemaOptionsAllMatches
     | DetectSchemaOptionsBestMatch;
 
-
 const defaultDetectOptions: DetectSchemaOptions = {
     firstMatch: false,
     bestMatch: false,
@@ -58,36 +56,44 @@ const defaultDetectOptions: DetectSchemaOptions = {
     strict: true,
 } as const;
 
-export function detectSchema(fileName: string, options?: Omit<DetectSchemaOptions, 'firstMatch'>): Schema[];
+export function detectSchema(fileName: string, options?: Omit<DetectSchemaOptions, 'firstMatch' | 'bestMatch'>): Schema[];
 export function detectSchema(fileName: string, options: DetectSchemaOptions & { firstMatch: true }): Schema | undefined;
-export function detectSchema(fileName: string, options: DetectSchemaOptions & { firstMatch: false }): Schema[];
+export function detectSchema(fileName: string, options: DetectSchemaOptions & { bestMatch: true }): Schema | undefined;
+export function detectSchema(fileName: string, options: DetectSchemaOptions & { firstMatch: false, bestMatch: false }): Schema[];
 export function detectSchema(fileName: string, options: DetectSchemaOptions = defaultDetectOptions): Schema | Schema[] | undefined {
-    options = {...defaultDetectOptions, ...options} as DetectSchemaOptions;
+    options = { ...defaultDetectOptions, ...options } as DetectSchemaOptions;
     const matchedSchemas = catalog.schemas.filter((schema: Schema) => {
         if (!schema.fileMatch) {
             return false;
         }
-        const strictMatches = schema.fileMatch.some((pattern: string) => minimatch(fileName, pattern, options));
+        const strictMatches = micromatch([fileName], schema.fileMatch, options).length > 0;
         if (strictMatches) {
             return true;
         } else if (options.strict) {
             return false;
         } else {
             fileName = fileName.split('/').pop() ?? fileName;
-            return schema.fileMatch.some((pattern: string) => minimatch(fileName, pattern, options));
+            return micromatch([fileName], schema.fileMatch, options).length > 0;
         }
     });
 
-    if (options.bestMatch && options.bestMatch && matchedSchemas.length > 1) {
-        return matchedSchemas.reduce((bestMatch: Schema | undefined, schema: Schema) => {
-            if (!bestMatch) {
-                return schema;
-            }
-            const bestMatchPattern = bestMatch.fileMatch?.[0] ?? '';
-            const schemaPattern = schema.fileMatch?.[0] ?? '';
-            return schemaPattern.length > bestMatchPattern.length ? schema : bestMatch;
-        }, undefined);
+    if (options.bestMatch && matchedSchemas.length > 1) {
+        return bestMatch(fileName, matchedSchemas, options);
     }
 
     return options.firstMatch ? matchedSchemas[0] : matchedSchemas;
+}
+
+
+function bestMatch(fileName: string, schemas: Schema[], options: DetectSchemaOptions): Schema | undefined {
+    return schemas.reduce((bestMatch: Schema | undefined, schema: Schema) => {
+        if (!schema.fileMatch) {
+            return bestMatch;
+        }
+        const bestMatchCaptures = bestMatch?.fileMatch?.map(pattern => micromatch.capture(pattern, fileName, options)?.length ?? 0) ?? [];
+        const schemaCaptures = schema.fileMatch.map(pattern => micromatch.capture(pattern, fileName, options)?.length ?? 0);
+        const maxBestMatchCapture = Math.max(...bestMatchCaptures, 0);
+        const maxSchemaCapture = Math.max(...schemaCaptures, 0);
+        return maxSchemaCapture > maxBestMatchCapture ? schema : bestMatch;
+    }, undefined);
 }

@@ -22,18 +22,18 @@
   "author": "David Septimus",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.2",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-typescript": "^12.1.2",
-    "@types/node": "^22.10.9",
-    "rollup": "^4.31.0",
+    "@types/micromatch": "^4.0.9",
+    "@types/node": "^22.10.10",
+    "rollup": "^4.32.0",
     "tslib": "^2.8.1",
     "typescript": "^5.7.3",
-    "vitest": "^3.0.3"
+    "vitest": "^3.0.4"
   },
   "dependencies": {
-    "@vitest/coverage-v8": "^3.0.3",
-    "minimatch": "^10.0.1"
+    "@vitest/coverage-v8": "^3.0.4",
+    "micromatch": "^4.0.8"
   }
 }
